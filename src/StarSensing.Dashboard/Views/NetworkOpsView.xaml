@@ -1,0 +1,244 @@
+<UserControl x:Class="StarSensing.Dashboard.Views.NetworkOpsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d"
+             d:DesignHeight="700" d:DesignWidth="1200">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0" Background="{StaticResource PanelBgBrush}" CornerRadius="8"
+                BorderBrush="#243064" BorderThickness="1" Padding="12" Margin="0,0,0,8">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel>
+                    <TextBlock Text="WI-FI CONNECT &amp; PROFILES" FontSize="16" FontWeight="Bold"
+                               Foreground="{StaticResource NeonCyanBrush}"/>
+                    <TextBlock Text="{Binding CurrentConnection}" FontSize="12" Margin="0,2,0,0" Foreground="#43e3a0"/>
+                    <TextBlock Text="{Binding StatusText}" FontSize="11" Margin="0,4,0,0"
+                               Foreground="{StaticResource WarningAmberBrush}"/>
+                </StackPanel>
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <Button Content="Scan" Command="{Binding ScanCommand}" Padding="14,5" Margin="0,0,6,0"
+                            Background="#1a2050" Foreground="{StaticResource NeonCyanBrush}"
+                            BorderBrush="#2a3060" BorderThickness="1" Cursor="Hand"/>
+                    <Button Content="Refresh Profiles" Command="{Binding RefreshProfilesCommand}" Padding="14,5"
+                            Background="#1a2050" Foreground="{StaticResource TextPrimaryBrush}"
+                            BorderBrush="#2a3060" BorderThickness="1" Cursor="Hand"/>
+                    <Button Content="Disconnect" Command="{Binding DisconnectCommand}" Padding="14,5" Margin="6,0,0,0"
+                            Background="#3a1414" Foreground="#ef6a6a"
+                            BorderBrush="#5a1f1f" BorderThickness="1" Cursor="Hand"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <TabControl Grid.Row="1" Background="Transparent" BorderThickness="0"
+                    SelectedIndex="{Binding SelectedTabIndex, Mode=TwoWay}">
+            <!-- Scan & Connect -->
+            <TabItem Header="Scan &amp; Connect" Foreground="{StaticResource TextPrimaryBrush}">
+                <Grid Margin="0,8,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1.4*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Border Background="{StaticResource PanelBgBrush}" CornerRadius="8"
+                            BorderBrush="#243064" BorderThickness="1" Margin="0,0,6,0">
+                        <ListView ItemsSource="{Binding AvailableNetworks}"
+                                  SelectedItem="{Binding SelectedNetwork, Mode=TwoWay}"
+                                  Background="#10173a" BorderThickness="0" Margin="8">
+                            <ListView.View>
+                                <GridView>
+                                    <GridViewColumn Header="SSID" Width="160" DisplayMemberBinding="{Binding Ssid}"/>
+                                    <GridViewColumn Header="Signal" Width="120">
+                                        <GridViewColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <Grid Width="100" Height="14" VerticalAlignment="Center">
+                                                    <Border Background="#1e2545" CornerRadius="2"/>
+                                                    <Border Background="#43e3a0" CornerRadius="2" HorizontalAlignment="Left"
+                                                            Width="{Binding SignalBarWidth}"/>
+                                                    <TextBlock Text="{Binding Signal}" FontSize="9"
+                                                               HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                               Foreground="White"/>
+                                                </Grid>
+                                            </DataTemplate>
+                                        </GridViewColumn.CellTemplate>
+                                    </GridViewColumn>
+                                    <GridViewColumn Header="BSSID" Width="130" DisplayMemberBinding="{Binding Bssid}"/>
+                                    <GridViewColumn Header="Ch" Width="40" DisplayMemberBinding="{Binding Channel}"/>
+                                    <GridViewColumn Header="Security" Width="140" DisplayMemberBinding="{Binding SecurityText}"/>
+                                </GridView>
+                            </ListView.View>
+                        </ListView>
+                    </Border>
+
+                    <Border Grid.Column="1" Background="{StaticResource PanelBgBrush}" CornerRadius="8"
+                            BorderBrush="#243064" BorderThickness="1" Margin="6,0,0,0" Padding="14">
+                        <StackPanel>
+                            <TextBlock Text="Connect to selected network" FontWeight="Bold"
+                                       Foreground="{StaticResource NeonCyanBrush}" FontSize="14"/>
+                            <TextBlock Margin="0,8,0,0" Foreground="{StaticResource TextSecondaryBrush}" FontSize="11">
+                                <Run Text="SSID: "/>
+                                <Run Text="{Binding SelectedNetwork.Ssid, Mode=OneWay, TargetNullValue='—'}" Foreground="{StaticResource TextPrimaryBrush}"/>
+                            </TextBlock>
+                            <TextBlock Margin="0,4,0,0" Foreground="{StaticResource TextSecondaryBrush}" FontSize="11">
+                                <Run Text="BSSID: "/>
+                                <Run Text="{Binding SelectedNetwork.Bssid, Mode=OneWay, TargetNullValue='—'}"/>
+                            </TextBlock>
+                            <TextBlock Margin="0,4,0,0" Foreground="{StaticResource TextSecondaryBrush}" FontSize="11">
+                                <Run Text="Security: "/>
+                                <Run Text="{Binding SelectedNetwork.SecurityText, Mode=OneWay, TargetNullValue='—'}"/>
+                            </TextBlock>
+
+                            <TextBlock Text="Password" FontSize="11" Margin="0,14,0,4"
+                                       Foreground="{StaticResource TextSecondaryBrush}"/>
+                            <PasswordBox Name="PasswordBox" Height="30"
+                                         Background="#10173a" BorderBrush="#2a3060"
+                                         Foreground="{StaticResource TextPrimaryBrush}"
+                                         PasswordChanged="PasswordBox_PasswordChanged"/>
+
+                            <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
+                                <Button Content="Connect" Command="{Binding ConnectCommand}"
+                                        Padding="18,6" Background="#143a2e" Foreground="#43e3a0"
+                                        BorderBrush="#1f5a47" BorderThickness="1" Cursor="Hand"/>
+                                <Button Content="Load saved password" Command="{Binding UseSelectedNetworkPasswordFromProfileCommand}"
+                                        Padding="12,6" Margin="8,0,0,0" Background="#1a2050"
+                                        Foreground="{StaticResource NeonCyanBrush}"
+                                        BorderBrush="#2a3060" BorderThickness="1" Cursor="Hand" FontSize="11"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </TabItem>
+
+            <!-- Saved Profiles -->
+            <TabItem Header="Saved Profiles &amp; Passwords" Foreground="{StaticResource TextPrimaryBrush}">
+                <Grid Margin="0,8,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="1.2*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Border Background="{StaticResource PanelBgBrush}" CornerRadius="8"
+                            BorderBrush="#243064" BorderThickness="1" Margin="0,0,6,0">
+                        <ListView ItemsSource="{Binding SavedProfiles}"
+                                  SelectedItem="{Binding SelectedProfile, Mode=TwoWay}"
+                                  Background="#10173a" BorderThickness="0" Margin="8">
+                            <ListView.View>
+                                <GridView>
+                                    <GridViewColumn Header="Profile name (SSID)" Width="280" DisplayMemberBinding="{Binding Name}"/>
+                                    <GridViewColumn Header="Key loaded" Width="80" DisplayMemberBinding="{Binding PasswordLoaded}"/>
+                                </GridView>
+                            </ListView.View>
+                        </ListView>
+                    </Border>
+
+                    <Border Grid.Column="1" Background="{StaticResource PanelBgBrush}" CornerRadius="8"
+                            BorderBrush="#243064" BorderThickness="1" Margin="6,0,0,0" Padding="14">
+                        <StackPanel>
+                            <TextBlock Text="Saved profile details" FontWeight="Bold"
+                                       Foreground="{StaticResource NeonCyanBrush}" FontSize="14"/>
+                            <TextBlock Margin="0,10,0,0" FontSize="12" Foreground="{StaticResource TextPrimaryBrush}">
+                                <Run Text="Profile: "/>
+                                <Run Text="{Binding SelectedProfile.Name, Mode=OneWay, TargetNullValue='Select a profile'}" FontWeight="SemiBold"/>
+                            </TextBlock>
+                            <TextBlock Margin="0,6,0,0" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}">
+                                <Run Text="Auth: "/>
+                                <Run Text="{Binding SelectedProfile.Authentication, Mode=OneWay}"/>
+                            </TextBlock>
+
+                            <Border Background="#070a1c" CornerRadius="4" Padding="10" Margin="0,14,0,0"
+                                    BorderBrush="#2a3060" BorderThickness="1">
+                                <StackPanel>
+                                    <TextBlock Text="Wi-Fi Password (Key Content)" FontSize="11"
+                                               Foreground="{StaticResource WarningAmberBrush}"/>
+                                    <TextBlock Text="{Binding SelectedProfile.PasswordDisplay, Mode=OneWay}"
+                                               FontFamily="Consolas" FontSize="14" Margin="0,6,0,0"
+                                               Foreground="#43e3a0" TextWrapping="Wrap"/>
+                                    <TextBlock Text="Requires Windows user context that saved the profile. Enterprise/certificate profiles may not expose a key."
+                                               FontSize="10" Foreground="{StaticResource TextSecondaryBrush}"
+                                               TextWrapping="Wrap" Margin="0,8,0,0"/>
+                                </StackPanel>
+                            </Border>
+
+                            <StackPanel Orientation="Horizontal" Margin="0,14,0,0">
+                                <Button Content="Show password" Command="{Binding ShowProfilePasswordCommand}"
+                                        Padding="14,6" Background="#143a2e" Foreground="#43e3a0"
+                                        BorderBrush="#1f5a47" BorderThickness="1" Cursor="Hand"/>
+                                <Button Content="Toggle visibility" Command="{Binding TogglePasswordVisibilityCommand}"
+                                        Padding="12,6" Margin="8,0,0,0" Background="#1a2050"
+                                        Foreground="{StaticResource TextPrimaryBrush}"
+                                        BorderBrush="#2a3060" BorderThickness="1" Cursor="Hand"/>
+                                <Button Content="Connect" Command="{Binding ConnectFromProfileCommand}"
+                                        Padding="14,6" Margin="8,0,0,0" Background="#1a2050"
+                                        Foreground="{StaticResource NeonCyanBrush}"
+                                        BorderBrush="#2a3060" BorderThickness="1" Cursor="Hand"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </TabItem>
+
+            <!-- Console -->
+            <TabItem Header="Network Tools" Foreground="{StaticResource TextPrimaryBrush}">
+                <Border Background="{StaticResource PanelBgBrush}" CornerRadius="8"
+                        BorderBrush="#243064" BorderThickness="1" Margin="0,8,0,0" Padding="12">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <WrapPanel Grid.Row="0">
+                            <WrapPanel.Resources>
+                                <Style TargetType="Button">
+                                    <Setter Property="Padding" Value="10,5"/>
+                                    <Setter Property="Margin" Value="0,0,6,6"/>
+                                    <Setter Property="Background" Value="#1a2050"/>
+                                    <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+                                    <Setter Property="BorderBrush" Value="#2a3060"/>
+                                    <Setter Property="BorderThickness" Value="1"/>
+                                    <Setter Property="Cursor" Value="Hand"/>
+                                    <Setter Property="FontSize" Value="11"/>
+                                </Style>
+                            </WrapPanel.Resources>
+                            <Button Content="WLAN Interfaces" Command="{Binding ShowInterfacesCommand}"/>
+                            <Button Content="Scan Networks" Command="{Binding ShowNetworksCommand}"/>
+                            <Button Content="Saved Profiles" Command="{Binding ShowProfilesCommand}"/>
+                            <Button Content="WLAN Drivers" Command="{Binding ShowDriversCommand}"/>
+                            <Button Content="ipconfig /all" Command="{Binding IpConfigCommand}"/>
+                            <Button Content="Flush DNS" Command="{Binding FlushDnsCommand}"/>
+                        </WrapPanel>
+                        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,2,0,8">
+                            <TextBlock Text="Ping" VerticalAlignment="Center"
+                                       Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,6,0"/>
+                            <TextBox Width="160" Height="26" VerticalContentAlignment="Center" Padding="6,0"
+                                     Text="{Binding PingTarget, UpdateSourceTrigger=PropertyChanged}"
+                                     Background="#10173a" BorderBrush="#2a3060"
+                                     Foreground="{StaticResource TextPrimaryBrush}"/>
+                            <Button Content="Ping" Command="{Binding PingCommand}" Padding="14,4" Margin="8,0,0,0"
+                                    Background="#1a2050" Foreground="{StaticResource NeonCyanBrush}"
+                                    BorderBrush="#2a3060" BorderThickness="1" Cursor="Hand"/>
+                        </StackPanel>
+                        <Border Grid.Row="2" Background="#070a1c" CornerRadius="6"
+                                BorderBrush="#1e2545" BorderThickness="1">
+                            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" Padding="8">
+                                <TextBox Text="{Binding CommandOutput, Mode=OneWay}" IsReadOnly="True"
+                                         BorderThickness="0" Background="Transparent"
+                                         FontFamily="Consolas" FontSize="12"
+                                         Foreground="#9fe8c8" TextWrapping="NoWrap"/>
+                            </ScrollViewer>
+                        </Border>
+                    </Grid>
+                </Border>
+            </TabItem>
+        </TabControl>
+    </Grid>
+</UserControl>

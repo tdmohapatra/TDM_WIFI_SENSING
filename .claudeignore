@@ -1,0 +1,69 @@
+# --- Build output / compiled artifacts (regenerable from source) ---
+**/bin/
+**/obj/
+**/dist/
+**/build/
+.vs/
+.vscode/
+
+# --- Dependency / vendor directories (huge, never edited directly) ---
+**/node_modules/
+**/venv/
+**/__pycache__/
+**/packages/
+**/*.egg-info/
+**/site-packages/
+
+# --- Generated gRPC/protobuf stubs (regenerate from .proto, don't hand-edit or read for context) ---
+**/protos/*_pb2.py
+**/protos/*_pb2_grpc.py
+**/Generated/
+
+# --- ML model binaries (large, opaque — describe in docs, don't load into context) ---
+src/StarSensing.Python/models/*.h5
+src/StarSensing.Python/models/*.keras
+src/StarSensing.Python/models/*.joblib
+
+# --- Databases / large data files ---
+**/*.db
+**/*.sqlite
+**/*.sqlite3
+**/*.mdf
+**/*.ldf
+**/*.bak
+
+# --- Logs, caches, temp, archives ---
+**/logs/
+**/TestResults/
+**/coverage/
+*.log
+*.zip
+*.7z
+*.cache
+*.tmp
+*.user
+*.suo
+
+# --- Secrets / local env (never load credentials into context) ---
+.env
+.env.local
+*.pfx
+*.pem
+*.key
+
+# --- IDE / editor noise ---
+.cursor/
+.idea/
+
+# --- Outdated docs (superseded by PROJECT_GUIDE.md — explicitly says "do not rely on this") ---
+TDM_REFERENCE/
+
+# --- Media / binary assets that bloat context without adding code understanding ---
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.ico
+*.dll
+*.exe
+*.pdb

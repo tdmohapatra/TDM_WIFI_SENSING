@@ -1,0 +1,9 @@
+﻿engine_address: "localhost:5050"
+server_port: 5051
+sample_rate_hz: 10
+window_size: 10
+models_dir: "models"
+processing:
+  window_size: 10
+  cutoff_frequency: 2.0
+  motion_threshold: 3.0

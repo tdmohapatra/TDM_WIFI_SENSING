@@ -1,0 +1,7 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/StarSensing.Core/StarSensing.Core.csproj" />
+    <Project Path="src/StarSensing.Dashboard/StarSensing.Dashboard.csproj" />
+    <Project Path="src/StarSensing.Engine/StarSensing.Engine.csproj" />
+  </Folder>
+</Solution>

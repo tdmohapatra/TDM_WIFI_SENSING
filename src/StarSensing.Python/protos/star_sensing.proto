@@ -1,0 +1,237 @@
+syntax = "proto3";
+
+option csharp_namespace = "StarSensing.Core.Protos";
+
+package star_sensing;
+
+import "google/protobuf/timestamp.proto";
+
+// ============================================================
+// Service Definitions
+// ============================================================
+
+/// The main sensing service — runs on the Engine, consumed by Dashboard & Python.
+service SensingService {
+  /// Stream real-time scan batches as they occur.
+  rpc StreamMeasurements(StreamRequest) returns (stream MeasurementBatch);
+
+  /// Stream processed environment state updates.
+  rpc StreamEnvironmentState(StreamRequest) returns (stream EnvironmentStateMsg);
+
+  /// Get the current snapshot of all detected networks.
+  rpc GetCurrentNetworks(Empty) returns (NetworkListResponse);
+
+  /// Get saved access point metadata and aggregate RSSI statistics.
+  rpc GetSavedNetworks(SavedNetworkRequest) returns (SavedNetworkListResponse);
+
+  /// Trigger a manual scan.
+  rpc TriggerScan(Empty) returns (ScanResponse);
+
+  /// Reset the motion detection baseline.
+  rpc ResetBaseline(Empty) returns (Empty);
+
+  /// Get historical measurements for a specific BSSID.
+  rpc GetHistory(HistoryRequest) returns (HistoryResponse);
+}
+
+/// Signal processing service — runs on Python, consumed by Engine.
+service SignalProcessorService {
+  /// Process a batch of raw measurements and return analysis results.
+  rpc ProcessBatch(MeasurementBatch) returns (ProcessingResult);
+
+  /// Stream continuous processing: send batches, receive results.
+  rpc StreamProcess(stream MeasurementBatch) returns (stream ProcessingResult);
+}
+
+// ============================================================
+// Messages
+// ============================================================
+
+message Empty {}
+
+message StreamRequest {
+  /// Maximum age of data to include in initial burst (seconds).
+  int32 max_initial_age_seconds = 1;
+  /// Minimum interval between updates (milliseconds). 0 = as fast as possible.
+  int32 min_interval_ms = 2;
+}
+
+message MeasurementBatch {
+  string batch_id = 1;
+  google.protobuf.Timestamp timestamp = 2;
+  repeated SignalMeasurementMsg measurements = 3;
+  int32 scan_duration_ms = 4;
+}
+
+message SignalMeasurementMsg {
+  string bssid = 1;
+  string ssid = 2;
+  int32 rssi_dbm = 3;
+  int32 signal_quality = 4;
+  int32 channel = 5;
+  int32 frequency_khz = 6;
+  google.protobuf.Timestamp timestamp = 7;
+}
+
+message NetworkListResponse {
+  repeated WiFiNetworkMsg networks = 1;
+  google.protobuf.Timestamp timestamp = 2;
+}
+
+message SavedNetworkRequest {
+  /// Maximum age of networks to include, in seconds. 0 = all saved networks.
+  int32 max_age_seconds = 1;
+}
+
+message SavedNetworkListResponse {
+  repeated SavedNetworkMsg networks = 1;
+  google.protobuf.Timestamp timestamp = 2;
+}
+
+message WiFiNetworkMsg {
+  string ssid = 1;
+  string bssid = 2;
+  int32 rssi_dbm = 3;
+  int32 signal_quality = 4;
+  int32 frequency_khz = 5;
+  int32 channel = 6;
+  string band = 7;
+  google.protobuf.Timestamp last_seen = 8;
+}
+
+message SavedNetworkMsg {
+  string ssid = 1;
+  string bssid = 2;
+  int32 latest_rssi_dbm = 3;
+  int32 signal_quality = 4;
+  int32 frequency_khz = 5;
+  int32 channel = 6;
+  string band = 7;
+  google.protobuf.Timestamp first_seen = 8;
+  google.protobuf.Timestamp last_seen = 9;
+  int32 min_rssi_dbm = 10;
+  int32 max_rssi_dbm = 11;
+  int64 sample_count = 12;
+}
+
+message ScanResponse {
+  bool success = 1;
+  int32 networks_found = 2;
+  int32 scan_duration_ms = 3;
+  string error_message = 4;
+}
+
+message HistoryRequest {
+  string bssid = 1;
+  google.protobuf.Timestamp from = 2;
+  google.protobuf.Timestamp to = 3;
+  int32 max_points = 4;
+}
+
+message HistoryResponse {
+  repeated SignalMeasurementMsg measurements = 1;
+}
+
+// ============================================================
+// Processing Results
+// ============================================================
+
+message ProcessingResult {
+  google.protobuf.Timestamp timestamp = 1;
+  double motion_confidence = 2;
+  double occupancy_confidence = 3;
+  EnvironmentClass classification = 4;
+  repeated ProcessedSignalMsg signals = 5;
+  repeated MotionEventMsg events = 6;
+  double stability_index = 7;
+  int32 active_ap_count = 8;
+  /// Average cross-router RSSI correlation for this batch (0..1).
+  double batch_correlation = 9;
+  repeated SpatialZoneMsg zones = 10;
+  /// LSTM sequence-model motion estimate (0..1).
+  double lstm_motion_confidence = 11;
+  /// CNN spatial heatmap activity score (0..1).
+  double cnn_activity_score = 12;
+}
+
+message ProcessedSignalMsg {
+  string bssid = 1;
+  string ssid = 2;
+  int32 raw_rssi = 3;
+  double smoothed_rssi = 4;
+  double variance = 5;
+  double std_dev = 6;
+  double change_rate = 7;
+  double dominant_frequency = 8;
+  double spectral_energy = 9;
+  double z_score = 10;
+  bool is_anomaly = 11;
+  double motion_confidence = 12;
+  repeated double fft_magnitudes = 13;
+  repeated double fft_frequencies = 14;
+  /// Shannon entropy of RSSI distribution in the analysis window (stability measure).
+  double entropy = 15;
+  /// Mean Pearson correlation of this router with all others in the batch.
+  double cross_correlation = 16;
+}
+
+message MotionEventMsg {
+  string event_id = 1;
+  google.protobuf.Timestamp timestamp = 2;
+  MotionEventTypeMsg event_type = 3;
+  double confidence = 4;
+  string description = 5;
+  int32 affected_ap_count = 6;
+  repeated string affected_bssids = 7;
+  double average_variance = 8;
+  double peak_rssi_change = 9;
+  int32 duration_ms = 10;
+}
+
+message EnvironmentStateMsg {
+  google.protobuf.Timestamp timestamp = 1;
+  double motion_confidence = 2;
+  double occupancy_confidence = 3;
+  EnvironmentClass classification = 4;
+  repeated ProcessedSignalMsg signals = 5;
+  repeated MotionEventMsg active_events = 6;
+  repeated SpatialZoneMsg zones = 7;
+  int32 active_ap_count = 8;
+  double stability_index = 9;
+  double lstm_motion_confidence = 10;
+  double cnn_activity_score = 11;
+}
+
+message SpatialZoneMsg {
+  string zone_id = 1;
+  string name = 2;
+  double x = 3;
+  double y = 4;
+  double radius = 5;
+  double occupancy_confidence = 6;
+  double motion_confidence = 7;
+  string color = 8;
+}
+
+// ============================================================
+// Enums
+// ============================================================
+
+enum MotionEventTypeMsg {
+  MOTION_NONE = 0;
+  SUBTLE_MOVEMENT = 1;
+  MOVEMENT = 2;
+  ROOM_ENTRY = 3;
+  ROOM_EXIT = 4;
+  ENVIRONMENTAL_CHANGE = 5;
+  OCCUPANCY = 6;
+  ANOMALY = 7;
+}
+
+enum EnvironmentClass {
+  STATIC = 0;
+  LOW_ACTIVITY = 1;
+  MODERATE_ACTIVITY = 2;
+  HIGH_ACTIVITY = 3;
+  TRANSITION = 4;
+}

@@ -1,0 +1,63 @@
+<Window x:Class="StarSensing.Dashboard.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:viewmodels="clr-namespace:StarSensing.Dashboard.ViewModels"
+        xmlns:views="clr-namespace:StarSensing.Dashboard.Views"
+        mc:Ignorable="d"
+        Title="STAR_SENSING Dashboard" Height="1040" Width="1920" WindowState="Maximized">
+    <Window.DataContext>
+        <viewmodels:MainViewModel/>
+    </Window.DataContext>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="30"/>
+        </Grid.RowDefinitions>
+        
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="STAR_SENSING Dashboard" Foreground="{StaticResource NeonCyanBrush}" FontSize="18" FontWeight="Bold" Margin="6,4"/>
+            <CheckBox Grid.Column="1" Content="Sound" IsChecked="{Binding SoundEnabled, Mode=TwoWay}"
+                      VerticalAlignment="Center" Margin="0,0,16,0"
+                      Foreground="{StaticResource TextSecondaryBrush}"/>
+        </Grid>
+
+        <!-- Simple tab control for views -->
+        <TabControl Grid.Row="1" Background="Transparent" BorderThickness="0">
+            <TabItem Header="Signal Monitor" Foreground="{StaticResource TextPrimaryBrush}">
+                <views:SignalMonitorView DataContext="{Binding SignalMonitorVM}"/>
+            </TabItem>
+            <TabItem Header="Heatmap" Foreground="{StaticResource TextPrimaryBrush}">
+                <views:HeatmapView DataContext="{Binding HeatmapVM}"/>
+            </TabItem>
+            <TabItem Header="Radar" Foreground="{StaticResource TextPrimaryBrush}">
+                <views:RadarView DataContext="{Binding RadarVM}"/>
+            </TabItem>
+            <TabItem Header="Area Map" Foreground="{StaticResource TextPrimaryBrush}">
+                <views:AreaMapView DataContext="{Binding AreaMapVM}"/>
+            </TabItem>
+            <TabItem Header="SolidView" Foreground="{StaticResource TextPrimaryBrush}">
+                <views:SolidView DataContext="{Binding SolidViewVM}"/>
+            </TabItem>
+            <TabItem Header="Motion" Foreground="{StaticResource TextPrimaryBrush}">
+                <views:MotionView DataContext="{Binding MotionVM}"/>
+            </TabItem>
+            <TabItem Header="Operations" Foreground="{StaticResource TextPrimaryBrush}">
+                <views:NetworkOpsView DataContext="{Binding NetworkOpsVM}"/>
+            </TabItem>
+        </TabControl>
+
+        <!-- Status bar -->
+        <Border Grid.Row="2" Background="{StaticResource PanelBgBrush}">
+            <StackPanel Orientation="Horizontal" Margin="10,0">
+                <TextBlock Text="{Binding ConnectionStatus}" Foreground="{StaticResource TextSecondaryBrush}" VerticalAlignment="Center"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>

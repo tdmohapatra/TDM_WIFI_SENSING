@@ -1,0 +1,26 @@
+<UserControl x:Class="StarSensing.Dashboard.Views.RadarView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:skia="clr-namespace:SkiaSharp.Views.WPF;assembly=SkiaSharp.Views.WPF">
+    <Grid Background="{StaticResource PanelBgBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Border Grid.Row="0" Background="#CC0a0e27" Padding="10,6" Margin="8,8,8,0"
+                CornerRadius="6" BorderBrush="#2a3060" BorderThickness="1">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="Radar" Foreground="{StaticResource NeonCyanBrush}" FontSize="15" FontWeight="Bold" Margin="0,0,16,0"/>
+                <TextBlock Foreground="{StaticResource TextSecondaryBrush}" FontSize="11" VerticalAlignment="Center">
+                    <Run Text="Targets: "/>
+                    <Run Text="{Binding TargetCount, Mode=OneWay}" Foreground="{StaticResource WarningAmberBrush}"/>
+                    <Run Text="  |  Peak variance: "/>
+                    <Run Text="{Binding PeakVariance, Mode=OneWay, StringFormat={}{0:F2}}"/>
+                    <Run Text="  |  "/>
+                    <Run Text="{Binding StatusText, Mode=OneWay}"/>
+                </TextBlock>
+            </StackPanel>
+        </Border>
+        <skia:SKElement Grid.Row="1" Name="SkiaCanvas" PaintSurface="OnPaintSurface" Margin="12"/>
+    </Grid>
+</UserControl>

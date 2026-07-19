@@ -1,0 +1,7 @@
+.\Start-StarSensing.ps1
+# Skip rebuild (already built)
+.\Start-StarSensing.ps1 -SkipBuild
+# No Python service
+.\Start-StarSensing.ps1 -NoPython
+# Fast re-launch after a code change
+.\Start-StarSensing.ps1 -SkipBuild -NoPython
